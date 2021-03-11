@@ -125,6 +125,7 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
 	ov5647.dtbo \
 	ov7251.dtbo \
 	ov9281.dtbo \
+	ov8865.dtbo \
 	papirus.dtbo \
 	pca953x.dtbo \
 	pibell.dtbo \
@@ -219,7 +220,8 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
 	w1-gpio-pullup.dtbo \
 	w5500.dtbo \
 	wittypi.dtbo \
-	wm8960-soundcard.dtbo
+	wm8960-soundcard.dtbo \
+	swx214a.dtbo
 
 targets += dtbs dtbs_install
 targets += $(dtbo-y)

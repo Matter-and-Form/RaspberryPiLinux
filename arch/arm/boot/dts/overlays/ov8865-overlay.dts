@@ -1,0 +1,105 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// Definitions for OV7251 camera module on VC I2C bus
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+/{
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&i2c_csi_dsi>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			ov8865: camera@6c {
+				compatible = "ovti,ov8865";
+				reg = <0x6c>;
+				status = "okay";
+				pinctrl-names = "default";
+				pinctrl-0 = <&clk_27m>;
+
+				reset-gpios = <&gpio 5 GPIO_ACTIVE_LOW>;
+				clocks = <&cam_osc>;
+				clock-names = "xvclk";
+				clock-frequency = <19200000>;
+
+				vdddo-supply = <&mt6358_vcama2_reg>;
+				vdda-supply = <&mt6358_vcamd_reg>;
+				vddd-supply = <&mt6358_vcamio_reg>;
+
+				port {
+					ov8865_0: endpoint {
+						remote-endpoint = <&csi1_ep>;
+						data-lanes = <1 2 3 4>;
+						link-frequencies = /bits/ 64 <360000000>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&csi1>;
+		__overlay__ {
+			status = "okay";
+
+			port {
+				csi1_ep: endpoint {
+					remote-endpoint = <&ov8865_0>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+		};
+	};
+
+//	fragment@2 {
+//		target = <&i2c0if>;
+//		__overlay__ {
+//			status = "okay";
+//		};
+//	};
+
+//	fragment@3 {
+//		target-path="/";
+//		__overlay__ {
+//			ov8865_dovdd: fixedregulator@1 {
+//			compatible = "regulator-fixed";
+//				regulator-name = "ov8865_dovdd";
+//				regulator-min-microvolt = <1800000>;
+//				regulator-max-microvolt = <1800000>;
+//			};
+//			ov8865_dvdd: fixedregulator@2 {
+//				compatible = "regulator-fixed";
+//				regulator-name = "ov8865_dvdd";
+//				regulator-min-microvolt = <1200000>;
+//				regulator-max-microvolt = <1200000>;
+//			};
+//			ov8865_clk: ov8865-clk {
+//				compatible = "fixed-clock";
+//				#clock-cells = <0>;
+//				clock-frequency = <19200000>;
+//			};
+//		};
+//	};
+
+//	fragment@4 {
+//		target = <&i2c0mux>;
+//		__overlay__ {
+//			status = "okay";
+//		};
+//	};
+
+//	fragment@5 {
+//		target = <&cam1_reg>;
+//		__overlay__ {
+//			status = "okay";
+//			regulator-name = "ov8865_avdd";
+//			regulator-min-microvolt = <2800000>;
+//			regulator-max-microvolt = <2800000>;
+//		};
+//	};
+};
