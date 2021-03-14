@@ -954,6 +954,8 @@ static int imx214_probe(struct i2c_client *client)
 	};
 	int ret;
 
+	dev_err(dev, "Starting IMX214 driver\n");
+
 	ret = imx214_parse_fwnode(dev);
 	if (ret)
 		return ret;
@@ -1000,6 +1002,8 @@ static int imx214_probe(struct i2c_client *client)
 	 * Enable power initially, to avoid warnings
 	 * from clk_disable on power_off
 	 */
+	dev_err(dev, "Starting IMX214 initialization\n");
+	dev_dbg(dev, "Starting IMX214 initialization\n");
 	imx214_power_on(imx214->dev);
 
 	pm_runtime_set_active(imx214->dev);
