@@ -8,69 +8,169 @@
 /{
 	compatible = "brcm,bcm2835";
 
-	fragment@0 {
+	
+
+	clk_frag_0: fragment@30 {
+		target = <&cam0_clk>;
+		cam_clk_0: __overlay__ {
+			clock-frequency = <24000000>;
+			status = "okay";
+		};
+	};
+
+	clk_frag_1: fragment@31 {
+		target = <&cam1_clk>;
+		cam_clk_1: __overlay__ {
+			clock-frequency = <24000000>;
+			status = "okay";
+		};
+	};	
+
+	fragment@1 {
+		target = <&i2c5>;
+		__overlay__ {
+			status = "okay";
+			brcm,pins = <10 11>;
+		};
+	};	
+
+	fragment@3 {
 		target = <&i2c0if>;
 		__overlay__ {
 			status = "okay";
 		};
 	};
 
-	clk_frag: fragment@1 {
-		target = <&cam1_clk>;
-		cam_clk: __overlay__ {
-			clock-frequency = <24000000>;
-			status = "okay";
-		};
-	};
-
-	fragment@2 {
+	fragment@4 { 
 		target = <&i2c0mux>;
 		__overlay__ {
 			status = "okay";
 		};
 	};
 
-	fragment@11 {
-		target = <&cam_endpoint>;
+	reg_frag_0: fragment@6 {
+		target = <&cam0_reg>;
+		cam_reg_0: __overlay__ {
+			regulator-name = "imx258_vana";
+			startup-delay-us = <300000>;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+	};
+
+	reg_frag_1: fragment@7 {
+		target = <&cam1_reg>;
+		cam_reg_1: __overlay__ {
+			regulator-name = "imx258_vana";
+			startup-delay-us = <300000>;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+	};
+
+	
+	
+
+	cam_left: fragment@100 {
+		target = <&i2c_csi_dsi>;
 		__overlay__ {
-			data-lanes = <1 2>;
-			link-frequencies = /bits/ 64 <633600000
-						      320000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			imx258_cam_0: imx258@10 {
+				compatible = "sony,imx258";
+				reg = <0x1A>;
+				status = "okay";
+
+				clocks = <&cam0_clk>;
+				clock-names = "xclk";
+
+				vana-supply = <&cam0_reg>;	/* 2.8v */
+				vdig-supply = <&cam_dummy_reg>;	/* 1.05v */
+				vif-supply = <&cam_dummy_reg>;	/* 1.8v */
+
+				rotation = <0>;
+				orientation = <2>;
+
+				lens-focus = <&vcm_cam_0>;
+
+				port {
+					imx258_0: endpoint {
+						remote-endpoint = <&csi_ep_0>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies =
+							/bits/ 64 <633600000
+								320000000>;
+					};
+				};
+			};
+
+			vcm_cam_0: ad5398@c {
+				compatible = "adi,ad5398";
+				reg = <0x0c>;
+				status = "okay";
+				VANA-supply = <&cam0_reg>;
+			};
 		};
 	};
 
-	fragment@12 {
-		target = <&cam_endpoint>;
-		__dormant__ {
-			data-lanes = <1 2 3 4>;
-			link-frequencies =
-				/bits/ 64 <633600000 320000000>;
-		};
-	};
 
-	fragment@13 {
-		target = <&csi_ep>;
+	cam_right: fragment@110 {
+		target = <&i2c5>;
 		__overlay__ {
-			data-lanes = <1 2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			imx258_cam_1: imx258@5 {
+				compatible = "sony,imx258";
+				reg = <0x1A>;
+				status = "okay";
+
+				clocks = <&cam1_clk>;
+				clock-names = "xclk";
+
+				vana-supply = <&cam1_reg>;	/* 2.8v */
+				vdig-supply = <&cam_dummy_reg>;	/* 1.05v */
+				vif-supply = <&cam_dummy_reg>;	/* 1.8v */
+
+				rotation = <0>;
+				orientation = <2>;
+
+				lens-focus = <&vcm_cam_1>;
+				port {
+					imx258_1: endpoint {
+						remote-endpoint = <&csi_ep_1>;
+						clock-lanes = <0>;
+						clock-noncontinuous;
+						link-frequencies =
+							/bits/ 64 <633600000
+								320000000>;
+					};
+				};
+			};
+
+			vcm_cam_1: ad5398@c {
+				compatible = "adi,ad5398";
+				reg = <0x0c>;
+				status = "okay";
+				VANA-supply = <&cam1_reg>;
+			};
 		};
 	};
 
-	fragment@14 {
-		target = <&csi_ep>;
-		__dormant__ {
-			data-lanes = <1 2 3 4>;
-		};
-	};
-
-	csi_frag: fragment@101 {
-		target = <&csi1>;
-		csi: __overlay__ {
+	
+	csi_0_frag: fragment@101 {
+		target = <&csi0>;
+		csi_0: __overlay__ {
 			status = "okay";
 			brcm,media-controller;
 
 			port {
-				csi_ep: endpoint {
-					remote-endpoint = <&cam_endpoint>;
+				csi_ep_0: endpoint {
+					remote-endpoint = <&imx258_0>;
 					clock-lanes = <0>;
 					clock-noncontinuous;
 				};
@@ -78,54 +178,76 @@
 		};
 	};
 
-	reg_frag: fragment@5 {
-		target = <&cam1_reg>;
-		cam_reg: __overlay__ {
-			regulator-name = "imx258_vana";
-			startup-delay-us = <300000>;
-			regulator-min-microvolt = <2700000>;
-			regulator-max-microvolt = <2700000>;
-		};
-	};
 
-	i2c_frag: fragment@100 {
-		target = <&i2c_csi_dsi>;
-		__overlay__ {
-			#address-cells = <1>;
-			#size-cells = <0>;
+	csi_1_frag: fragment@111 {
+		target = <&csi1>;
+		csi_1: __overlay__ {
 			status = "okay";
+			brcm,media-controller;
 
-			#include "imx258.dtsi"
-
-			vcm: ad5398@c {
-				compatible = "adi,ad5398";
-				reg = <0x0c>;
-				status = "disabled";
-				VANA-supply = <&cam1_reg>;
+			port {
+				csi_ep_1: endpoint {
+					remote-endpoint = <&imx258_1>;
+					clock-lanes = <0>;
+					clock-noncontinuous;
+				};
 			};
 		};
 	};
 
-	__overrides__ {
-		rotation = <&cam_node>,"rotation:0";
-		orientation = <&cam_node>,"orientation:0";
-		media-controller = <&csi>,"brcm,media-controller?";
-		cam0 = <&i2c_frag>, "target:0=",<&i2c_csi_dsi0>,
-		       <&csi_frag>, "target:0=",<&csi0>,
-		       <&clk_frag>, "target:0=",<&cam0_clk>,
-		       <&reg_frag>, "target:0=",<&cam0_reg>,
-		       <&cam_node>, "clocks:0=",<&cam0_clk>,
-		       <&cam_node>, "vana-supply:0=",<&cam0_reg>;
-		vcm = <&vcm>, "status=okay",
-		      <&cam_node>,"lens-focus:0=", <&vcm>;
-		4lane = <0>, "-11+12-13+14";
+
+	fragment@102 {
+		target = <&imx258_0>;
+		__overlay__ {
+			data-lanes = <1 2>;
+			link-frequencies = /bits/ 64 <633600000
+						      320000000>;
+		};
 	};
-};
+	
+	fragment@112 {
+		target = <&imx258_1>;
+		__overlay__ {
+			data-lanes = <1 2 3 4>;
+			link-frequencies = /bits/ 64 <633600000
+						      320000000>;
+		};
+	};
 
-&cam_node {
-	status = "okay";
-};
+	fragment@113 {
+		target = <&imx258_1>;
+		__dormant__ {
+			data-lanes = <1 2 3 4>;
+			link-frequencies =
+				/bits/ 64 <633600000 320000000>;
+		};
+	};
 
-&cam_endpoint {
-	remote-endpoint = <&csi_ep>;
+	fragment@104 {
+		target = <&csi_ep_0>;
+		__overlay__ {
+			data-lanes = <1 2>;
+		};
+	};
+
+	fragment@114 {
+		target = <&csi_ep_1>;
+		__overlay__ {
+			data-lanes = <1 2 3 4>;
+		};
+	};
+
+	fragment@115 {
+		target = <&csi_ep_1>;
+		__dormant__ {
+			data-lanes = <1 2 3 4>;
+		};
+	};
+
+
+
+	__overrides__ {
+		rotation = <&imx258_cam_1>,"rotation:0",<&imx258_cam_0>,"rotation:0";
+		orientation = <&imx258_cam_1>,"orientation:0",<&imx258_cam_0>,"orientation:0";
+	};
 };
