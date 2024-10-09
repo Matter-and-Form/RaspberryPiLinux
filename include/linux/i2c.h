@@ -824,7 +824,6 @@ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
 	adapter->lock_ops->unlock_bus(adapter, flags);
 	mutex_unlock(&i2c_global_lock);
 }
-}
 
 /**
  * i2c_mark_adapter_suspended - Report suspended state of the adapter to the core
