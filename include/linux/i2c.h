@@ -52,6 +52,9 @@ typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
 struct module;
 struct property_entry;
 
+/* Bus independent currency prevention */
+static DEFINE_MUTEX(i2c_global_lock);
+
 #if IS_ENABLED(CONFIG_I2C)
 /* Return the Frequency mode string based on the bus frequency */
 const char *i2c_freq_mode_string(u32 bus_freq_hz);
@@ -789,6 +792,7 @@ int i2c_for_each_dev(void *data, int (*fn)(struct device *dev, void *data));
 static inline void
 i2c_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
 {
+	mutex_lock(&i2c_global_lock);
 	adapter->lock_ops->lock_bus(adapter, flags);
 }
 
@@ -803,6 +807,8 @@ i2c_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
 static inline int
 i2c_trylock_bus(struct i2c_adapter *adapter, unsigned int flags)
 {
+	if (!mutex_trylock(&i2c_global_lock))
+        return 0;
 	return adapter->lock_ops->trylock_bus(adapter, flags);
 }
 
@@ -816,6 +822,8 @@ static inline void
 i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
 {
 	adapter->lock_ops->unlock_bus(adapter, flags);
+	mutex_unlock(&i2c_global_lock);
+}
 }
 
 /**
