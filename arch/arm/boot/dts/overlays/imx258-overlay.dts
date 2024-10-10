@@ -107,8 +107,8 @@
 				};
 			};
 
-			vcm_cam_0: ad5398@c {
-				compatible = "adi,ad5398";
+			vcm_cam_0: dw9714@c {
+				compatible = "adi,dw9714";
 				reg = <0x0c>;
 				status = "okay";
 				VANA-supply = <&cam0_reg>;
@@ -152,8 +152,8 @@
 				};
 			};
 
-			vcm_cam_1: ad5398@c {
-				compatible = "adi,ad5398";
+			vcm_cam_1: dw9714@c {
+				compatible = "adi,dw9714";
 				reg = <0x0c>;
 				status = "okay";
 				VANA-supply = <&cam1_reg>;
